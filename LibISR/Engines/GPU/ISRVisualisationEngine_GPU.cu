@@ -115,8 +115,6 @@ void LibISR::Engine::ISRVisualisationEngine_GPU::renderAsSDF(FloatImage* SDFImag
 	renderAsSDF_device << <gridSize, blockSize >> >(outSDF_ptr,outPtCloud_ptr,outimageGray, minmaximg, imgSize, voxelData, invH, invIntrinsic, lightSource, one_on_top_of_maxVoxelRange);
 	rendering->outputImage->UpdateHostFromDevice();
 }
-
-
 //////////////////////////////////////////////////////////////////////////
 // device functions
 //////////////////////////////////////////////////////////////////////////
@@ -136,3 +134,4 @@ __global__ void renderAsSDF_device(float* outSDFImg, Vector4f* outPtCloud, Vecto
 
 	raycaseAsSDF(outSDFImg, outPtCloud, outImg, x, y, imgSize, voxelData, invH, invIntrinsic, minmaxImg, lightSource, voxelrange);
 }
+

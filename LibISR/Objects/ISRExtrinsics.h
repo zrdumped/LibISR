@@ -22,6 +22,9 @@ namespace LibISR
 			/** Inverse of the above. */
 			Matrix4f calib_inv;
 
+			Matrix3f R;
+			Vector3f T;
+
 			/** Setup from a given 4x4 matrix, where only the upper
 			three rows are used. More specifically, m00...m22
 			are expected to contain a rotation and m30...m32
@@ -31,6 +34,12 @@ namespace LibISR
 			void SetFrom(const Matrix4f & src)
 			{
 				this->calib = src;
+				for(int i = 0; i < 3; i++){
+					for(int j = 0; j < 3; j++){
+						this->R.m[i * 4 + j] = src.m[i * 4 + j];
+					}
+					this->T.v[i] = src.m[i * 4 + 3];
+				}
 				this->calib_inv.setIdentity();
 				for (int r = 0; r < 3; ++r) for (int c = 0; c < 3; ++c) this->calib_inv.m[r + 4 * c] = this->calib.m[c + 4 * r];
 				for (int r = 0; r < 3; ++r) {

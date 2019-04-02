@@ -15,7 +15,15 @@
 
 #include <iostream>
 
-#include"../Utils/IOUtil.h"
+#include "../Utils/IOUtil.h"
+
+
+//#include <opencv2/core/core.hpp>
+//#include <opencv/cv.hpp>
+//#include <opencv2/core/cuda.hpp>
+//#include <opencv2/cudawarping.hpp>
+//using namespace cv;
+
 
 using namespace LibISRUtils;
 using namespace LibISR::Engine;
@@ -32,6 +40,7 @@ static void safe_glutBitmapString(void *font, const char *str)
 
 void UIEngine::glutDisplayFunction()
 {
+	//printf("[glutDisplayFunction]started\n");
 	UIEngine *uiEngine = UIEngine::Instance();
 
 	// get updated images from processing thread
@@ -43,8 +52,9 @@ void UIEngine::glutDisplayFunction()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
-
+	
 	UChar4Image** showImgs = uiEngine->outImage;
+	//printf("[glutDisplayFunction]UChar4Image** showImgs = uiEngine->outImage NUM_WIN %d;\n", NUM_WIN);
 	Vector4f *winReg = uiEngine->winReg;
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -58,7 +68,9 @@ void UIEngine::glutDisplayFunction()
 			glEnable(GL_TEXTURE_2D);
 			for (int w = 0; w < NUM_WIN; w++)	{// Draw each sub window
 				glBindTexture(GL_TEXTURE_2D, uiEngine->textureId[w]);
+				//printf("glTexImage2D start;\n");
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, showImgs[w]->noDims.x, showImgs[w]->noDims.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, showImgs[w]->GetData(MEMORYDEVICE_CPU));
+				//printf("glTexImage2D end;\n");
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glBegin(GL_QUADS); {
@@ -75,7 +87,7 @@ void UIEngine::glutDisplayFunction()
 	}
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-
+	//printf("[glutDisplayFunction]glPopMatrix();\n");
 
 	//if (uiEngine->startDrawingBoundingBox)
 	//{
@@ -105,6 +117,7 @@ void UIEngine::glutDisplayFunction()
 
 	glutSwapBuffers();
 	uiEngine->needsRefresh = false;
+	//printf("[glutDisplayFunction]stop\n");
 }
 
 void inline updateHistogramFromRendering(UChar4Image* rendering, UChar4Image* rgb, LibISR::Objects::ISRHistogram* hist)
@@ -121,8 +134,8 @@ void inline updateHistogramFromRendering(UChar4Image* rendering, UChar4Image* rg
 
 void UIEngine::glutIdleFunction()
 {
+	//printf("UIEngine::glutIdleFunction\n");
 	UIEngine *uiEngine = UIEngine::Instance();
-
 	switch (uiEngine->mainLoopAction)
 	{
 	case REINIT_HIST:
@@ -167,8 +180,8 @@ void UIEngine::glutIdleFunction()
 
 void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 {
+	//printf("UIEngine::glutKeyUpFunction\n");
 	UIEngine *uiEngine = UIEngine::Instance();
-
 	switch (key)
 	{
 	case 'r':
@@ -210,6 +223,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 
 void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, ISRCoreEngine *mainEngine, const char *outFolder)
 {
+	printf("[UIEngine::Initialise]%d x %d\n", imageSource->getDepthImageSize().x, imageSource->getDepthImageSize().y);
 	this->mainEngine = mainEngine;
 	this->imageSource = imageSource;
 	{
@@ -248,6 +262,8 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 
 	for (int w = 0; w < NUM_WIN; w++)
 		outImage[w] = new UChar4Image(imageSource->getDepthImageSize(),true, false);
+	outImage[2] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
+	
 
 	mainLoopAction = PROCESS_PAUSED;
 	mouseState = 0;
@@ -326,9 +342,14 @@ static inline void  DepthToUchar4(UChar4Image *dst, ShortImage *src)
 	}
 }
 
+//static LibISR::Engine::MatrixAssist ma;
+
 static inline void  DepthToUchar4_overlay(UChar4Image *dst, ShortImage *src, UChar4Image *rgb)
 {
 	Vector4u *srgb = rgb->GetData(MEMORYDEVICE_CPU);
+
+	//LibISR::Engine::MatrixAssist::Resize(rgb->GetData(MEMORYDEVICE_CPU), srgb, Vector2i(1920, 1080), Vector2i(512, 424));
+
 	Vector4u *dest = dst->GetData(MEMORYDEVICE_CPU);
 	short *source = src->GetData(MEMORYDEVICE_CPU);
 	int dataSize = dst->dataSize;
@@ -343,11 +364,13 @@ static inline void  DepthToUchar4_overlay(UChar4Image *dst, ShortImage *src, UCh
 
 	for (int idx = 0; idx < dataSize; idx++)
 	{
-
 		float sourceVal = source[idx];
+		//printf("%f \n", sourceVal);
 		if (sourceVal>65530) sourceVal = 0.0f;
 		if (sourceVal > 0.0f) { lims[0] = MIN(lims[0], sourceVal); lims[1] = MAX(lims[1], sourceVal); }
 	}
+
+	//printf("scale: %f - %f \n", lims[0], lims[1]);
 
 	scale = ((lims[1] - lims[0]) != 0) ? 1.0f / (lims[1] - lims[0]) : 1.0f / lims[1];
 
@@ -367,15 +390,34 @@ static inline void  DepthToUchar4_overlay(UChar4Image *dst, ShortImage *src, UCh
 			destUC4[idx].a = 255;
 		}
 	}
+
+	static int i = 0;
+	char str[250];
+	if(i == 0){
+		sprintf(str, "dst.ppm");
+		SaveImageToFile(dst, str);
+		sprintf(str, "srgb.ppm");
+		SaveImageToFile(rgb, str);
+		//sprintf(str, "src.ppm");
+		//SaveImageToFile(src, str);
+        printf("[DepthToUchar4_overlay::getImages]recording srgb\n");
+    }
+	i++;
 }
 
 void UIEngine::ProcessFrame()
 {
-	if (!imageSource->hasMoreImages()) return;
+	//printf("Process Frame started\n");
+	
+	if (!imageSource->hasMoreImages()){
+		//printf("!imageSource->hasMoreImages()\n");
+		return;
+	}
 	imageSource->getImages(mainEngine->getView());
 
 	if (isRecording)
 	{
+		//printf("Is recording\n");
 		char str[250];
 
 		//sprintf(str, "%s/%04d.pgm", outFolder, currentFrameNo);
@@ -386,18 +428,21 @@ void UIEngine::ProcessFrame()
 	}
 
 	//DepthToUchar4(outImage[1], mainEngine->getView()->rawDepth);
+	printf("DepthToUchar4_overlay\n");
 	DepthToUchar4_overlay(outImage[1], mainEngine->getView()->rawDepth,mainEngine->getView()->rgb);
 
 	//actual processing on the mailEngine
-
+	printf("actual processing on the mailEngine\n");
 	sdkResetTimer(&timer); sdkStartTimer(&timer);
 	mainEngine->processFrame();
 	sdkStopTimer(&timer); processedTime += sdkGetTimerValue(&timer);
-
+	printf("mainEngine->getEnergy()\n");
 	this->energy = mainEngine->getEnergy();
 
 
+	printf("mainEngine->getView()->alignedRgb\n");
 	outImage[0]->SetFrom(mainEngine->getView()->alignedRgb, ORUtils::MemoryBlock< Vector4u >::CPU_TO_CPU);
+	printf("mainEngine->getView()->rgb\n");
 	outImage[2]->SetFrom(mainEngine->getView()->rgb, ORUtils::MemoryBlock< Vector4u >::CPU_TO_CPU);
 
 	if (isRecording)
@@ -415,6 +460,7 @@ void UIEngine::ProcessFrame()
 	}
 
 	currentFrameNo++;
+	//printf("Process Frame finished\n");
 }
 
 void UIEngine::Run() { glutMainLoop(); }

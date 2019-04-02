@@ -4,6 +4,7 @@
 #include"LibISR/LibISR.h"
 #include"LibISR/UI/ImageSourceEngine.h"
 #include"LibISR/UI/OpenNIEngine.h"
+#include"LibISR/UI/LibfreenectEngine.h"
 #include"LibISR/UI/UIEngine.h"
 
 #include"LibISR/Utils/IOUtil.h"
@@ -21,26 +22,32 @@ int main(int argc, char** argv)
 	// setup for live demo
 	//////////////////////////////////////////////////////////////////////////
 
-    if (argc !=3){
-        std::cout<<"Usage: ./demo <path to SDF model> <path to calib file>"<<std::endl;
-        return -1;
-    }
+    // if (argc !=3){
+    //     std::cout<<"Usage: ./demo <path to SDF model> <path to calib file>"<<std::endl;
+    //     return -1;
+    // }
 
-    const char *sdfFile = argv[1];
-	const char *calibFile = argv[2];
+    //const char *sdfFile = argv[1];
+	//const char *calibFile = argv[2];
+    const char *sdfFile = "../Data/teacan.bin";
+	const char *calibFile = "../Data/Calib_reg.txt";
     
 //	const char *sdfFile = "/home/carl/Work/Code/github/LibISR/Data/teacan.bin";
 //	const char *calibFile = "/home/carl/Work/Code/github/LibISR/Data/calib_reg.txt";
     
     
-	ImageSourceEngine *imageSource = new OpenNIEngine(calibFile, NULL, true);
-    
+	//ImageSourceEngine *imageSource = new OpenNIEngine(calibFile, NULL, true);
+	ImageSourceEngine *imageSource = new LibfreenectEngine(calibFile, NULL, true);
+	//ImageSourceEngine *imageSource = LibfreenectEngine::Instance(calibFile, NULL, true);
+	//imageSource->test();
+    printf("[demo.cpp]ISRLibSettings isrSettings;\n");
 	ISRLibSettings isrSettings;
 	isrSettings.noHistogramDim = HISTOGRAM_BIN;
 	isrSettings.noTrackingObj = 1;
 	isrSettings.singleAappearanceModel = true;
 	isrSettings.useGPU = true;
 
+	printf("[demo.cpp]new ISRCoreEngine\n");
 	ISRCoreEngine *coreEngine = new ISRCoreEngine(&isrSettings, &imageSource->calib, imageSource->getDepthImageSize(), imageSource->getRGBImageSize());
     
     coreEngine->shapeUnion->loadShapeFromFile(sdfFile, Vector3i(DT_VOL_SIZE, DT_VOL_SIZE, DT_VOL_SIZE), 0);
@@ -56,7 +63,9 @@ int main(int argc, char** argv)
 	///////////////////////////////////////////////////////////////////////////
 	// run it!
 	///////////////////////////////////////////////////////////////////////////
+	//printf("UIEngine::Instance()->Initialise\n");
 	UIEngine::Instance()->Initialise(argc, argv, imageSource, coreEngine, "./");
+	//printf("UIEngine::Instance()->Run()\n;");
 	UIEngine::Instance()->Run();
 	UIEngine::Instance()->Shutdown();
 

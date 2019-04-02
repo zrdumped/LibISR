@@ -4,6 +4,9 @@
 
 #include "../LibISR.h"
 
+#include <opencv2/core/core.hpp>
+#include <opencv/cv.hpp>
+
 namespace LibISRUtils
 {
 	class ImageSourceEngine
@@ -18,6 +21,8 @@ namespace LibISRUtils
 		virtual void getImages(LibISR::Objects::ISRView *out) = 0;
 		virtual Vector2i getDepthImageSize(void) = 0;
 		virtual Vector2i getRGBImageSize(void) = 0;
+
+		virtual void test() = 0;
 	};
 
 	class ImageFileReader : public ImageSourceEngine

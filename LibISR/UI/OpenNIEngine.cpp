@@ -24,8 +24,10 @@ static openni::VideoMode findBestMode(const openni::SensorInfo *sensorInfo, int 
 {
 	const openni::Array<openni::VideoMode> & modes = sensorInfo->getSupportedVideoModes();
 	openni::VideoMode bestMode = modes[0];
+	if(modes.getSize() == 1)
+		return bestMode;
 	for (int m = 0; m < modes.getSize(); ++m) {
-		//fprintf(stderr, "mode %i: %ix%i, %i %i\n", m, modes[m].getResolutionX(), modes[m].getResolutionY(), modes[m].getFps(), modes[m].getPixelFormat());
+		fprintf(stderr, "mode %i: %ix%i, %i %i\n", m, modes[m].getResolutionX(), modes[m].getResolutionY(), modes[m].getFps(), modes[m].getPixelFormat());
 		const openni::VideoMode & curMode = modes[m];
 		if ((requiredPixelFormat != -1) && (curMode.getPixelFormat() != requiredPixelFormat)) continue;
 
@@ -87,6 +89,10 @@ OpenNIEngine::OpenNIEngine(const char *calibFilename, const char *deviceURI, con
 		openni::OpenNI::shutdown();
 		return;
 	}
+	// if( data->device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR ) )    
+    // {    
+    //     data->device.setImageRegistrationMode( openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR );    
+    // }
 
 	openni::PlaybackControl *control = data->device.getPlaybackControl();
 	if (control != NULL) {
@@ -207,7 +213,13 @@ void OpenNIEngine::getImages(LibISR::Objects::ISRView *out)
 	Vector4u *rgb = out->rgb->GetData(MEMORYDEVICE_CPU);
 	if (colorAvailable)
 	{
+		//openni::VideoMode colorMode = data->colorStream.
+		//fprintf(stderr, "mode: %ix%i, %i %i\n", colorMode.getResolutionX(), colorMode.getResolutionY(), colorMode.getFps(), colorMode.getPixelFormat());
+
 		const openni::RGB888Pixel* colorImagePix = (const openni::RGB888Pixel*)data->colorFrame.getData();
+		//RGB -> RGBA
+		//printf("color frame size noDims x %d, y %d", out->rgb->noDims.x, out->rgb->noDims.y);
+		
 		for (int i = 0; i < out->rgb->noDims.x * out->rgb->noDims.y; i++)
 		{
 			Vector4u newPix; openni::RGB888Pixel oldPix = colorImagePix[i];
@@ -226,7 +238,15 @@ void OpenNIEngine::getImages(LibISR::Objects::ISRView *out)
 	else memset(depth, 0, out->rawDepth->dataSize * sizeof(short));
 
 	out->inputDepthType = ISRView::ISR_SHORT_DEPTH;
+	static int i = 0;
+	if(i == 20){
+		cv::Mat rgbMat = cv::Mat(data->colorFrame.getHeight(), data->colorFrame.getWidth(), CV_8UC3, (openni::RGB888Pixel*)data->colorFrame.getData());
+		cv::imshow("rgb", rgbMat);
+		cv::imwrite("cv-rgb.jpg", rgbMat);
 
+		out->RecordRaw();
+	}
+	i++;
 	return /*true*/;
 }
 

@@ -4,6 +4,7 @@
 
 #include "ImageSourceEngine.h"
 
+
 #pragma comment(lib, "OpenNI2")
 
 namespace LibISRUtils
@@ -17,7 +18,7 @@ namespace LibISRUtils
 		bool colorAvailable, depthAvailable;
 	public:
 		OpenNIEngine(const char *calibFilename, const char *deviceURI = NULL, const bool useInternalCalibration = false,
-			Vector2i imageSize_rgb = Vector2i(640, 480), Vector2i imageSize_d = Vector2i(640, 480));
+			Vector2i imageSize_rgb = Vector2i(1920, 1080), Vector2i imageSize_d = Vector2i(640, 480));
 
 		~OpenNIEngine();
 
@@ -25,6 +26,8 @@ namespace LibISRUtils
 		void getImages(LibISR::Objects::ISRView *out);
 		Vector2i getDepthImageSize(void);
 		Vector2i getRGBImageSize(void);
+
+		void test(){return;}
 	};
 }
 

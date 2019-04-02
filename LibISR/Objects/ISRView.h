@@ -6,6 +6,8 @@
 #include "ISRHistogram.h"
 #include "ISRCalib.h"
 
+#include"../Utils/IOUtil.h"
+
 namespace LibISR
 {
 	/**
@@ -41,11 +43,12 @@ namespace LibISR
 
 			ISRView(const ISRCalib &calib, Vector2i rgb_size, Vector2i d_size, bool  useGPU = false)
 			{
+				
 				this->calib = new ISRCalib(calib);
 				this->rgb = new UChar4Image(rgb_size, true,useGPU);
 				this->rawDepth = new ShortImage(d_size, true, useGPU);
 				this->depth = new FloatImage(d_size, true, useGPU);
-				this->alignedRgb = new UChar4Image(d_size, true, useGPU);
+				this->alignedRgb = new UChar4Image(rgb_size, true, useGPU);
 			}
 
 			~ISRView()
@@ -61,6 +64,14 @@ namespace LibISR
 
 			ISRView(const ISRView&);
 			ISRView& operator=(const ISRView&);
+
+			void RecordRaw(){
+				char str[250];
+				sprintf(str, "rgb.ppm");
+				SaveImageToFile(rgb, str);
+				sprintf(str, "raw-depth.ppm");
+				SaveImageToFile(rawDepth, str);
+			}
 		};
 	}
 }

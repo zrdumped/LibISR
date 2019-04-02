@@ -4,6 +4,7 @@
 
 ##
 SET(ORUTILS_HEADERS
+PlatformIndependence.h
 Vector.h
 Matrix.h
 Cholesky.h
@@ -13,7 +14,6 @@ CUDADefines.h
 LexicalCast.h
 MemoryBlock.h
 MemoryBlockPersister.h
-PlatformIndependence.h
 )
 
 #################################################################
@@ -35,7 +35,12 @@ SOURCE_GROUP("" FILES ${ORUTILS_HEADERS})
 # Specify the include directories, target and link libraries #
 ##############################################################
 
-add_library(ORUtils ${ORUTILS_OBJECTS})
+#add_library(ORUtils ${ORUTILS_OBJECTS})
+
+cuda_add_library(ORUtils ${ORUTILS_OBJECTS})
+
+target_link_libraries(ORUtils 
+    ${CUDA_LIBRARY})
 
 IF(WITH_CUDA)
 #  include_directories(${CUDA_INCLUDE_DIRS})
@@ -50,4 +55,4 @@ ELSE()
 #  add_library(ITMLib ${ITMLIB_CPU_OBJECTS} ${ITMLIB_COMMON_OBJECTS})
 ENDIF()
 
-#target_link_libraries(ITMLib Utils)
+#target_link_libraries(ITMLib Utils )

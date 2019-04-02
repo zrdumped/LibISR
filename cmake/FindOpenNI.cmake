@@ -8,8 +8,12 @@
 
 message(STATUS ${OPEN_NI_ROOT})
 
-find_path(OpenNI_INCLUDE_DIR OpenNI.h PATH "${OPEN_NI_ROOT}/Include")
-find_library(OpenNI_LIBRARY OpenNI2 PATH "${OPEN_NI_ROOT}/Bin/x64-Release/")
+# find_path(OpenNI_INCLUDE_DIR OpenNI.h PATH "${OPEN_NI_ROOT}/Include")
+# find_library(OpenNI_LIBRARY OpenNI2 PATH "${OPEN_NI_ROOT}/Bin/x64-Release/")
+
+
+ find_path(OpenNI_INCLUDE_DIR OpenNI.h PATH "/usr/include/openni2")
+ find_library(OpenNI_LIBRARY OpenNI2 PATH "/usr/lib/")
 
 # handle the QUIETLY and REQUIRED arguments and set JPEG_FOUND to TRUE if
 # all listed variables are TRUE

@@ -23,6 +23,8 @@
 #include "CPU/ISRVisualisationEngine_CPU.h"
 #include "GPU/ISRVisualisationEngine_GPU.h"
 
+#include "GPU/MatrixAssist_GPU.h"
+
 namespace LibISR
 {
 	namespace Engine
@@ -47,7 +49,7 @@ namespace LibISR
 			Objects::ISRShapeUnion *shapeUnion;
 			Objects::ISRTrackingState *trackingState;
 
-			Objects::ISRView *getView(){ return frame->view;};
+			Objects::ISRView *getView(){return frame->view;};
 			Objects::ISRImageHierarchy *getImageHierarchy(){ return frame->imgHierarchy; }
 			Objects::ISRVisualisationState *getRenderingState(){ return frame->rendering; }
 			float getEnergy(){ return trackingState->energy; };

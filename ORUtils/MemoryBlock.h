@@ -91,6 +91,7 @@ namespace ORUtils
 		*/
 		MemoryBlock(size_t dataSize, bool allocate_CPU, bool allocate_CUDA, bool metalCompatible = true)
 		{
+			//printf("%d\n", dataSize);
 			this->isAllocated_CPU = false;
 			this->isAllocated_CUDA = false;
 			this->isMetalCompatible = false;
@@ -145,24 +146,33 @@ namespace ORUtils
 		/** Copy data */
 		void SetFrom(const MemoryBlock<T> *source, MemoryCopyDirection memoryCopyDirection)
 		{
-			switch (memoryCopyDirection)
-			{
-			case CPU_TO_CPU:
-				memcpy(this->data_cpu, source->data_cpu, source->dataSize * sizeof(T));
-				break;
+				switch (memoryCopyDirection)
+				{
+				case CPU_TO_CPU:
+					memcpy(this->data_cpu, source->data_cpu, source->dataSize * sizeof(T));
+					break;
 #ifndef COMPILE_WITHOUT_CUDA
-			case CPU_TO_CUDA:
-				ORcudaSafeCall(cudaMemcpyAsync(this->data_cuda, source->data_cpu, source->dataSize * sizeof(T), cudaMemcpyHostToDevice));
-				break;
-			case CUDA_TO_CPU:
-				ORcudaSafeCall(cudaMemcpy(this->data_cpu, source->data_cuda, source->dataSize * sizeof(T), cudaMemcpyDeviceToHost));
-				break;
-			case CUDA_TO_CUDA:
-				ORcudaSafeCall(cudaMemcpyAsync(this->data_cuda, source->data_cuda, source->dataSize * sizeof(T), cudaMemcpyDeviceToDevice));
-				break;
+				case CPU_TO_CUDA:
+					ORcudaSafeCall(cudaMemcpyAsync(this->data_cuda, source->data_cpu, source->dataSize * sizeof(T), cudaMemcpyHostToDevice));
+					break;
+				case CUDA_TO_CPU:
+					//printf("case CUDA_TO_CPU\n");
+					//Resize(NULL, NULL);
+					ORcudaSafeCall(cudaMemcpy(this->data_cpu, source->data_cuda, source->dataSize * sizeof(T), cudaMemcpyDeviceToHost));
+					// if(source->dataSize <= dataSize)
+					// 	ORcudaSafeCall(cudaMemcpy(this->data_cpu, source->data_cuda, source->dataSize * sizeof(T), cudaMemcpyDeviceToHost));
+					// else{
+					// 	MemoryBlock<T> *resizedSource = new MemoryBlock<T>(dataSize, MEMORYDEVICE_CUDA);
+					// 	Resize(source->GetData(MEMORYDEVICE_CUDA), resizedSource->GetData(MEMORYDEVICE_CUDA));
+					// 	ORcudaSafeCall(cudaMemcpy(this->data_cpu, resizedSource->data_cuda, resizedSource->dataSize * sizeof(T), cudaMemcpyDeviceToHost));
+					// }
+					break;
+				case CUDA_TO_CUDA:
+					ORcudaSafeCall(cudaMemcpyAsync(this->data_cuda, source->data_cuda, source->dataSize * sizeof(T), cudaMemcpyDeviceToDevice));
+					break;
 #endif
-			default: break;
-			}
+				default: break;
+				}
 		}
 
 		virtual ~MemoryBlock() { this->Free(); }
@@ -262,5 +272,10 @@ namespace ORUtils
 		MemoryBlock(const MemoryBlock&);
 		MemoryBlock& operator=(const MemoryBlock&);
 #endif
+
+
 	};
 }
+
+
+

@@ -32,6 +32,10 @@ bool LibISR::Objects::readExtrinsics(std::istream & src, ISRExtrinsics & dest)
 	src >> calib.m00 >> calib.m10 >> calib.m20 >> calib.m30;
 	src >> calib.m01 >> calib.m11 >> calib.m21 >> calib.m31;
 	src >> calib.m02 >> calib.m12 >> calib.m22 >> calib.m32;
+	 
+	std::cout << calib.m00 << " " << calib.m10 << " " << calib.m20 << " " << calib.m30;
+	std::cout << calib.m01 << " " << calib.m11 << " " << calib.m21 << " " << calib.m31;
+	std::cout << calib.m02 << " " << calib.m12 << " " << calib.m22 << " " << calib.m32;
 	calib.m03 = 0.0f; calib.m13 = 0.0f; calib.m23 = 0.0f; calib.m33 = 1.0f;
 	if (src.fail()) return false;
 

@@ -1,6 +1,7 @@
 // Copyright 2014 Isis Innovation Limited and the authors of InfiniTAM
 
 #pragma once
+#include "PlatformIndependence.h"
 
 #ifndef MIN
 #define MIN(a,b) ((a < b) ? a : b)

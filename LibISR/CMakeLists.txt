@@ -11,6 +11,8 @@ set(LibISR_UI
 	UI/ImageSourceEngine.cpp
 	UI/OpenNIEngine.h
 	UI/OpenNIEngine.cpp
+	UI/LibfreenectEngine.h
+	UI/LibfreenectEngine.cpp
 	UI/UIEngine.h
 	UI/UIEngine.cpp
 	)
@@ -60,6 +62,8 @@ set(LibISR_Engines_GPU
 	Engines/GPU/ISRLowlevelEngine_GPU.cu
 	Engines/GPU/ISRVisualisationEngine_GPU.h
 	Engines/GPU/ISRVisualisationEngine_GPU.cu
+	Engines/GPU/MatrixAssist_GPU.h
+	Engines/GPU/MatrixAssist_GPU.cu
 	)
 
 set(LibISR_Engines_CPU
