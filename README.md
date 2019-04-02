@@ -1,4 +1,18 @@
-#LibISR: Implicit Shape Representation for 3D Tracking and Reconstruction
+# LibISR: Implicit Shape Representation for 3D Tracking and Reconstruction
+
+## My Modifications and TODO list
+
+1. The original version only supports KinectV1 running on openni2. It could not get images with right resolution (RGB 1920x1080, Depth 512x424) from kinectv2. I implemented a new interface using Libfreenect2 to solve this problem.
+
+2. Based on the kinectV1, the code assumes that rgb and depth images are with the same resolution (640x480), causing lots of bugs which would be triggered once their resolutions are different. Besides, some functions like display are also implemented based on the same resolution, I am working on it.
+
+3. [TODO] Add different and more objects into the tracking system
+
+4. [TODO] Optimize the code for GPU - friendly.
+
+5. [TODO] Receive and send pose information.
+
+## Original ReadMe is below
 
 This is the software bundle "LibISR",  the current version is maintained by:
 
