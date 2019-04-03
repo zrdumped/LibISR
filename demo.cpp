@@ -40,14 +40,14 @@ int main(int argc, char** argv)
 	ImageSourceEngine *imageSource = new LibfreenectEngine(calibFile, NULL, true);
 	//ImageSourceEngine *imageSource = LibfreenectEngine::Instance(calibFile, NULL, true);
 	//imageSource->test();
-    printf("[demo.cpp]ISRLibSettings isrSettings;\n");
+    //printf("[demo.cpp]ISRLibSettings isrSettings;\n");
 	ISRLibSettings isrSettings;
 	isrSettings.noHistogramDim = HISTOGRAM_BIN;
 	isrSettings.noTrackingObj = 1;
 	isrSettings.singleAappearanceModel = true;
 	isrSettings.useGPU = true;
 
-	printf("[demo.cpp]new ISRCoreEngine\n");
+	//printf("[demo.cpp]new ISRCoreEngine\n");
 	ISRCoreEngine *coreEngine = new ISRCoreEngine(&isrSettings, &imageSource->calib, imageSource->getDepthImageSize(), imageSource->getRGBImageSize());
     
     coreEngine->shapeUnion->loadShapeFromFile(sdfFile, Vector3i(DT_VOL_SIZE, DT_VOL_SIZE, DT_VOL_SIZE), 0);

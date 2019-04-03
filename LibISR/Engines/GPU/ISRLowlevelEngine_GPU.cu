@@ -48,7 +48,7 @@ void LibISR::Engine::ISRLowlevelEngine_GPU::prepareAlignedRGBDData(Float4Image *
 	dim3 blockSize(16, 16);
 	dim3 gridSize((int)ceil((float)w / (float)blockSize.x), (int)ceil((float)h / (float)blockSize.y));
 
-	prepareAlignedRGBDData_device << <gridSize, blockSize >> >(rgbd_out_ptr, depth_in_ptr, rgb_in_ptr, raw_depth_in->noDims, home->H, home->T);
+	prepareAlignedRGBDData_device << <gridSize, blockSize >> >(rgbd_out_ptr, depth_in_ptr, rgb_in_ptr, rgb_in->noDims, home->H, home->T);
 }
 
 void LibISR::Engine::ISRLowlevelEngine_GPU::preparePointCloudFromAlignedRGBDImage(Float4Image *ptcloud_out, Float4Image *inimg, Objects::ISRHistogram *histogram, const Vector4f &intrinsic, const Vector4i &boundingbox)
@@ -109,7 +109,27 @@ __global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, const short *d
 
 	int idx = y * imgSize.x + x;
 	ushort rawdepth = (ushort)depth_in[idx];
-	float z = rawdepth == 65535 ? 0 : ((float)rawdepth) / 1000.0f;
+	float z = rawdepth == 65535 ? 0 : ((float)rawdepth / 1000.0f);
+
+	// Vector3f uv_depth = (y, x, 1.0f);
+	// Vector3f uv_color = z / 1000.0f * H * uv_depth + T / 1000.0f;
+
+	// int X = static_cast<int>(uv_color[0] / uv_color[2]);
+	// int Y = static_cast<int>(uv_color[1] / uv_color[2]);
+	// int idx_depth_to_rgb = Y * 1920 + X;
+
+	// if((X >= 0 && X < 1920) && (Y >= 0 && Y < 1080)){
+	// 	rgbd_out[idx].x = rgb_in_ptr[idx_depth_to_rgb].r;
+	// 	rgbd_out[idx].y = rgb_in_ptr[idx_depth_to_rgb].g;
+	// 	rgbd_out[idx].z = rgb_in_ptr[idx_depth_to_rgb].b;
+	// 	rgbd_out[idx].w = z;
+	// }else{
+	// 	rgbd_out[idx].x = 0;
+	// 	rgbd_out[idx].y = 0;
+	// 	rgbd_out[idx].z = 0;
+	// 	rgbd_out[idx].w = z;
+	// }
+
 
 	if (T.x == 0 && T.y == 0 && T.z == 0)
 	{

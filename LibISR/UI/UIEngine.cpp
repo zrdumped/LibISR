@@ -262,6 +262,7 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 
 	for (int w = 0; w < NUM_WIN; w++)
 		outImage[w] = new UChar4Image(imageSource->getDepthImageSize(),true, false);
+	outImage[0] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
 	outImage[2] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
 	
 
@@ -427,9 +428,9 @@ void UIEngine::ProcessFrame()
 		SaveImageToFile(mainEngine->getView()->rgb, str);
 	}
 
-	//DepthToUchar4(outImage[1], mainEngine->getView()->rawDepth);
+	DepthToUchar4(outImage[1], mainEngine->getView()->rawDepth);
 	printf("DepthToUchar4_overlay\n");
-	DepthToUchar4_overlay(outImage[1], mainEngine->getView()->rawDepth,mainEngine->getView()->rgb);
+	//DepthToUchar4_overlay(outImage[1], mainEngine->getView()->rawDepth,mainEngine->getView()->rgb);
 
 	//actual processing on the mailEngine
 	printf("actual processing on the mailEngine\n");
