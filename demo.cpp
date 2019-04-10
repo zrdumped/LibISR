@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     //const char *sdfFile = argv[1];
 	//const char *calibFile = argv[2];
     const char *sdfFile = "../Data/teacan.bin";
-	const char *calibFile = "../Data/Calib_reg.txt";
+	const char *calibFile = "../Data/Calib_latest.txt";
     
 //	const char *sdfFile = "/home/carl/Work/Code/github/LibISR/Data/teacan.bin";
 //	const char *calibFile = "/home/carl/Work/Code/github/LibISR/Data/calib_reg.txt";

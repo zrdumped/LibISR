@@ -36,9 +36,11 @@ namespace LibISR
 				this->calib = src;
 				for(int i = 0; i < 3; i++){
 					for(int j = 0; j < 3; j++){
-						this->R.m[i * 4 + j] = src.m[i * 4 + j];
+						this->R.m[i * 3 + j] = src.m[i * 4 + j];
 					}
-					this->T.v[i] = src.m[i * 4 + 3];
+				}
+				for(int i = 0; i < 3; i++){
+					this->T.v[i] = src.m[3 * 4 + i];
 				}
 				this->calib_inv.setIdentity();
 				for (int r = 0; r < 3; ++r) for (int c = 0; c < 3; ++c) this->calib_inv.m[r + 4 * c] = this->calib.m[c + 4 * r];

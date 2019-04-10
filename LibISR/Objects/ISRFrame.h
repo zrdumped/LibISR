@@ -47,7 +47,7 @@ namespace LibISR
 					color_size.x, color_size.y, d_size.x, d_size.y);
 				view = new ISRView(calib, color_size, d_size, useGPU);
 				imgHierarchy = new ISRImageHierarchy(d_size, noHierarchy, useGPU);
-				rendering = new ISRVisualisationState(d_size, useGPU);
+				rendering = new ISRVisualisationState(color_size, useGPU);
 				//Resize(view->rgb->GetData(MEMORYDEVICE_CUDA), view->rgb->GetData(MEMORYDEVICE_CUDA));
 			}
 

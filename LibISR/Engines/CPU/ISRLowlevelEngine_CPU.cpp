@@ -69,7 +69,7 @@ void LibISR::Engine::ISRLowlevelEngine_CPU::prepareAlignedRGBDData(Float4Image *
 		int idx = i * w + j;
 		ushort rawdepth = depth_ptr[idx];
 		float z = rawdepth == 65535 ? 0 : ((float)rawdepth / 1000.0f);
-		
+
 		if (alreadyAligned)
 		{
 			rgbd_out_ptr[idx].x = rgb_in_ptr[idx].r;

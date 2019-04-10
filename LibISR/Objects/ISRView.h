@@ -43,7 +43,7 @@ namespace LibISR
 
 			ISRView(const ISRCalib &calib, Vector2i rgb_size, Vector2i d_size, bool  useGPU = false)
 			{
-				
+				//remember to modify outImage after modfying this
 				this->calib = new ISRCalib(calib);
 				this->rgb = new UChar4Image(rgb_size, true,useGPU);
 				this->rawDepth = new ShortImage(d_size, true, useGPU);

@@ -14,7 +14,7 @@ ImageSourceEngine::ImageSourceEngine(const char *calibFilename)
 	 readRGBDCalib(calibFilename, calib);
 	 //update homography manualy
 	 calib.homo_depth_to_color.H = calib.intrinsics_rgb.A * calib.trafo_rgb_to_depth.R * calib.intrinsics_d.invA;
-	 calib.homo_depth_to_color.T = calib.intrinsics_rgb.A * calib.trafo_rgb_to_depth.T / 1000.0f;
+	 calib.homo_depth_to_color.T = calib.intrinsics_rgb.A * calib.trafo_rgb_to_depth.T ;
 	
 	// printf("H: %f %f %f\n", calib.intrinsics_rgb.A.m00, calib.intrinsics_rgb.A.m01, calib.intrinsics_rgb.A.m02);
 	// printf("H: %f %f %f\n", calib.intrinsics_rgb.A.m00, calib.intrinsics_rgb.A.m01, calib.intrinsics_rgb.A.m02);
@@ -23,7 +23,7 @@ ImageSourceEngine::ImageSourceEngine(const char *calibFilename)
 	// printf("H: %f %f %f\n", calib.homo_depth_to_color.H.m00, calib.homo_depth_to_color.H.m10, calib.homo_depth_to_color.H.m20);
 	// printf("H: %f %f %f\n", calib.homo_depth_to_color.H.m01, calib.homo_depth_to_color.H.m11, calib.homo_depth_to_color.H.m21);
 	// printf("H: %f %f %f\n", calib.homo_depth_to_color.H.m02, calib.homo_depth_to_color.H.m12, calib.homo_depth_to_color.H.m22);
-	// printf("T: %f %f %f\n", calib.homo_depth_to_color.T.x, calib.homo_depth_to_color.T.y, calib.homo_depth_to_color.T.z);
+	printf("T: %f %f %f\n", calib.homo_depth_to_color.T.x, calib.homo_depth_to_color.T.y, calib.homo_depth_to_color.T.z);
 }
 
 

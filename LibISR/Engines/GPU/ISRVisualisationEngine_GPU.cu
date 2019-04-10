@@ -34,8 +34,9 @@ void LibISR::Engine::ISRVisualisationEngine_GPU::renderObject(Objects::ISRVisual
 	invIntrinsic.z = -intrinsic.z*invIntrinsic.x; invIntrinsic.w = -intrinsic.w*invIntrinsic.y;
 
 	float one_on_top_of_maxVoxelRange = 1 / sqrtf(DT_VOL_SIZE*DT_VOL_SIZE + DT_VOL_SIZE*DT_VOL_SIZE + DT_VOL_SIZE*DT_VOL_SIZE);
-
+	//printf("renderObject_device << <gridSize, blockSize >> >(outimage, minmaximg, imgSize, voxelData, invH, invIntrinsic, lightSource, one_on_top_of_maxVoxelRange);\n");
 	renderObject_device << <gridSize, blockSize >> >(outimage, minmaximg, imgSize, voxelData, invH, invIntrinsic, lightSource, one_on_top_of_maxVoxelRange);
+	//printf("ISRVisualisationEngine_GPU rendering->outputImage->UpdateHostFromDevice();\n");
 	rendering->outputImage->UpdateHostFromDevice();
 }
 

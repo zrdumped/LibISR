@@ -29,11 +29,14 @@ _CPU_AND_GPU_CODE_ inline float getPf(const T &pixel, float* histogram, int noBi
 template<class VecType>
 _CPU_AND_GPU_CODE_ inline void mapRGBDtoRGB(VecType &rgb_out, const Vector3f& inpt, const Vector4u *rgb_in, const Vector2i& imgSize, const Matrix3f &H, const Vector3f &T)
 {
+	printf("[mapRGBDtoRGB]\n");
 	if (inpt.z>0)
 	{
 		Vector3f imgPt = H*inpt + T;
 		int ix = (int)(imgPt.x / imgPt.z);
 		int iy = (int)(imgPt.y / imgPt.z);
+
+		printf("%d %d %f\n", ix, iy, inpt.z);
 
 		if (ix >= 0 && ix < imgSize.x && iy >= 0 && imgSize.y)
 		{
@@ -46,6 +49,33 @@ _CPU_AND_GPU_CODE_ inline void mapRGBDtoRGB(VecType &rgb_out, const Vector3f& in
 	}
 	rgb_out.r = rgb_out.g = rgb_out.b = 0;
 }
+
+// template<class VecType, class VecType2>
+// _CPU_AND_GPU_CODE_ inline void mapRGBDtoRGB(VecType &rgb_out, VecType2 &aligned_rgb, const Vector3f& inpt, const Vector4u *rgb_in, const Vector2i& imgSize, const Matrix3f &H, const Vector3f &T)
+// {
+// 	if (inpt.z>0)
+// 	{
+// 		Vector3f imgPt = H*inpt + T;
+// 		int ix = (int)(imgPt.x / imgPt.z);
+// 		int iy = (int)(imgPt.y / imgPt.z);
+
+// 		if (ix >= 0 && ix < imgSize.x && iy >= 0 && imgSize.y)
+// 		{
+// 			rgb_out.x = rgb_in[iy * imgSize.x + ix].x;
+// 			rgb_out.y = rgb_in[iy * imgSize.x + ix].y;
+// 			rgb_out.z = rgb_in[iy * imgSize.x + ix].z;
+// 			aligned_rgb.x = rgb_in[iy * imgSize.x + ix].x;
+// 			aligned_rgb.y = rgb_in[iy * imgSize.x + ix].y;
+// 			aligned_rgb.z = rgb_in[iy * imgSize.x + ix].z;
+// 			//printf("Pos %d %d, RGB: %d %d %d\n",
+// 			//ix, iy, rgb_in[iy * imgSize.x + ix].x, 
+// 			//rgb_in[iy * imgSize.x + ix].y, rgb_in[iy * imgSize.x + ix].z);
+// 			return;
+// 		}
+// 	}
+// 	rgb_out.r = rgb_out.g = rgb_out.b = 0;
+// 	aligned_rgb.r = aligned_rgb.g = aligned_rgb.b = 0;
+// }
 
 
 _CPU_AND_GPU_CODE_ inline void filterSubsampleWithHoles(Vector4f *imageData_out, int x, int y, Vector2i newDims, const Vector4f *imageData_in, Vector2i oldDims)

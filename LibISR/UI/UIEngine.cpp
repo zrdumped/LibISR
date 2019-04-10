@@ -429,21 +429,21 @@ void UIEngine::ProcessFrame()
 	}
 
 	DepthToUchar4(outImage[1], mainEngine->getView()->rawDepth);
-	printf("DepthToUchar4_overlay\n");
+	//printf("DepthToUchar4_overlay\n");
 	//DepthToUchar4_overlay(outImage[1], mainEngine->getView()->rawDepth,mainEngine->getView()->rgb);
 
 	//actual processing on the mailEngine
-	printf("actual processing on the mailEngine\n");
+	//printf("actual processing on the mailEngine\n");
 	sdkResetTimer(&timer); sdkStartTimer(&timer);
 	mainEngine->processFrame();
 	sdkStopTimer(&timer); processedTime += sdkGetTimerValue(&timer);
-	printf("mainEngine->getEnergy()\n");
+	//printf("mainEngine->getEnergy()\n");
 	this->energy = mainEngine->getEnergy();
 
 
-	printf("mainEngine->getView()->alignedRgb\n");
+	//printf("mainEngine->getView()->alignedRgb\n");
 	outImage[0]->SetFrom(mainEngine->getView()->alignedRgb, ORUtils::MemoryBlock< Vector4u >::CPU_TO_CPU);
-	printf("mainEngine->getView()->rgb\n");
+	//printf("mainEngine->getView()->rgb\n");
 	outImage[2]->SetFrom(mainEngine->getView()->rgb, ORUtils::MemoryBlock< Vector4u >::CPU_TO_CPU);
 
 	if (isRecording)

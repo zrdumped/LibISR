@@ -70,48 +70,59 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 
 	// align colour image with depth image if need to
 	//printf("align colour image with depth image if need to\n");
+	//printf("data%d\n", myview->rawDepth->GetData());
 	lowLevelEngine->prepareAlignedRGBDData(myhierarchy->levels[0].rgbd, myview->rawDepth, myview->rgb, &myview->calib->homo_depth_to_color);
 
 	static int i = 0;
+	if(i==0){
 	char str[250];
-	if(i == 0){
 	float lims[2], scale;
 	int dataSize = myhierarchy->levels[0].rgbd->dataSize;
+	myhierarchy->levels[0].rgbd->UpdateHostFromDevice();
 	Vector4f *destUC4 = myhierarchy->levels[0].rgbd->GetData(MEMORYDEVICE_CPU);
+	short * rawdepth = myview->rawDepth->GetData(MEMORYDEVICE_CPU);
 	lims[0] = 100000.0f; lims[1] = -100000.0f;
 
 	for (int idx = 0; idx < dataSize; idx++)
 	{
 		float sourceVal = destUC4[idx].a;
-		//printf("%f \n", sourceVal);
-		if (sourceVal>65530) sourceVal = 0.0f;
+		//short int depth = rawdepth[idx];
+		//printf("%d ", depth);
+		//if (sourceVal>65530) sourceVal = 0.0f;
 		if (sourceVal > 0.0f) { lims[0] = MIN(lims[0], sourceVal); lims[1] = MAX(lims[1], sourceVal); }
 	}
 
-	//printf("scale: %f - %f \n", lims[0], lims[1]);
+	printf("scale: %f - %f \n", lims[0], lims[1]);
 
 	scale = ((lims[1] - lims[0]) != 0) ? 1.0f / (lims[1] - lims[0]) : 1.0f / lims[1];
 
 	if (lims[0] == lims[1]) return;
-	cv::Mat dstMat(1080, 1920, CV_8UC4, Scalar(0, 0, 0, 0));
+	cv::Mat dstMat(424, 512, CV_8UC4, Scalar(0, 0, 0, 0));
+
+	//sprintf(str, "depth-in-core.ppm");
+	//SaveImageToFile(myview->rawDepth, str);
+	//sprintf(str, "rgbd.ppm");
+	//SaveImageToFile(myhierarchy->levels[0].rgbd, str);
 
 	for (int idx = 0; idx < dataSize; idx++)
 	{
 		float sourceVal = destUC4[idx].a;
-
 		if (sourceVal > 0.0f)
 		{
 			sourceVal = (sourceVal - lims[0]) * scale;
-
-			dstMat.at<Vec4b>(idx / 1920, idx % 1920)[0] = (uchar)(base(sourceVal - 0.5f) * 127.5f + destUC4[idx].r*0.5f);
-			dstMat.at<Vec4b>(idx / 1920, idx % 1920)[1] = (uchar)(base(sourceVal) * 127.5f + destUC4[idx].g*0.5f);
-			dstMat.at<Vec4b>(idx / 1920, idx % 1920)[2] = (uchar)(base(sourceVal + 0.5f) * 127.5f + destUC4[idx].b*0.5f);
-			dstMat.at<Vec4b>(idx / 1920, idx % 1920)[3] = 255;
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[0] = (uchar)(base(sourceVal - 0.5f) * 127.5f + destUC4[idx].r*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[1] = (uchar)(base(sourceVal) * 127.5f + destUC4[idx].g*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[2] = (uchar)(base(sourceVal + 0.5f) * 127.5f + destUC4[idx].b*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[3] = 255;
+		}else{
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[0] = 0;//(uchar)(base(sourceVal - 0.5f) * 127.5f + destUC4[idx].r*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[1] = 0;// (uchar)(base(sourceVal) * 127.5f + destUC4[idx].g*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[2] = 0;//(uchar)(base(sourceVal + 0.5f) * 127.5f + destUC4[idx].b*0.5f);
+			dstMat.at<Vec4b>(idx / 512, idx % 512)[3] = 255;
 		}
 	}
 	cv::imwrite("rgbd.jpg", dstMat);
-	}
-	i++;
+	}i++;
 
 
 
@@ -139,7 +150,8 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	}
 
 	//printf("myview->alignedRgb->SetFrom\n");
-	if (settings->useGPU){
+	//lowLevelEngine->
+	//if (settings->useGPU){
 		myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		// if(myview->rgb->dataSize <= myview->alignedRgb->dataSize)
 		// 	myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
@@ -159,8 +171,8 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 		// 	}
 		// 	i++;
 		// }
-	} 
-	else myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
+	//} 
+	//else myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 	//printf("After myview->alignedRgb->SetFrom\n");
 	lowLevelEngine->computepfImageFromHistogram(myview->rgb, frame->histogram);
 
@@ -171,14 +183,24 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	//printf("raycast for rendering, not necessary if only track\n");
 	for (int i = 0; i < settings->noTrackingObj; i++)
 	{
-		tmprendering[i] = new ISRVisualisationState(myview->rawDepth->noDims, settings->useGPU);
+		tmprendering[i] = new ISRVisualisationState(myview->rgb->noDims, settings->useGPU);
 		tmprendering[i]->outputImage->Clear(0);
-		visualizationEngine->updateMinmaxmImage(tmprendering[i]->minmaxImage, trackingState->getPose(i)->getH(), myview->calib->intrinsics_d.A, myview->depth->noDims);
+		//[MODIFIED]depth->rgb
+		visualizationEngine->updateMinmaxmImage(tmprendering[i]->minmaxImage, trackingState->getPose(i)->getH(), myview->calib->intrinsics_d.A, myview->rgb->noDims);
 		tmprendering[i]->minmaxImage->UpdateDeviceFromHost();
 		visualizationEngine->renderObject(tmprendering[i], trackingState->getPose(i)->getInvH(), shapeUnion->getShape(0), myview->calib->intrinsics_d.getParam());
 	}
 
 	myrendering->outputImage->Clear(0);
+
+	// UChar4Image** tmprendering_out_1080 = new UChar4Image*[settings->noTrackingObj];
+	// for(int j = 0; j < settings.noTrackingObj; j++){
+	// 	tmprendering_out_1080[j] = new UChar4Image(Vector2i(1920, 1080) , true,useGPU);
+	// 	Vector4u * 1080_image = tmprendering_out_1080[j]->GetData(MEMORYDEVICE_CPU);
+	// 	Vector4u * 424_image = tmprendering[j]->outputImage->GetData(MEMORYDEVICE_CPU);
+
+	// }
+
 	for (int i = 0; i < myrendering->outputImage->dataSize; i++)
 	{
 		for (int j = 0; j < settings->noTrackingObj; j++)
