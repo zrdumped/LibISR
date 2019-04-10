@@ -29,14 +29,14 @@ _CPU_AND_GPU_CODE_ inline float getPf(const T &pixel, float* histogram, int noBi
 template<class VecType>
 _CPU_AND_GPU_CODE_ inline void mapRGBDtoRGB(VecType &rgb_out, const Vector3f& inpt, const Vector4u *rgb_in, const Vector2i& imgSize, const Matrix3f &H, const Vector3f &T)
 {
-	printf("[mapRGBDtoRGB]\n");
+	//printf("[mapRGBDtoRGB]\n");
 	if (inpt.z>0)
 	{
 		Vector3f imgPt = H*inpt + T;
 		int ix = (int)(imgPt.x / imgPt.z);
 		int iy = (int)(imgPt.y / imgPt.z);
 
-		printf("%d %d %f\n", ix, iy, inpt.z);
+		//printf("%d %d %f\n", ix, iy, inpt.z);
 
 		if (ix >= 0 && ix < imgSize.x && iy >= 0 && imgSize.y)
 		{
