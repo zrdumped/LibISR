@@ -178,6 +178,27 @@ void UIEngine::glutIdleFunction()
 	}
 }
 
+
+void UIEngine::setMainloopState(int state){
+	UIEngine *uiEngine = UIEngine::Instance();
+	switch (state){
+	case 1:
+		printf("processing input source ...\n");
+		uiEngine->mainLoopAction = UIEngine::PROCESS_VIDEO;
+		break;
+	case 2:
+		printf("re-initialize histogram ...\n");
+		uiEngine->mainLoopAction = UIEngine::REINIT_HIST;
+		break;
+	case 3:
+		printf("exiting ...\n");
+		uiEngine->mainLoopAction = UIEngine::EXIT;
+		break;
+	default:
+		break;
+	}
+}
+
 void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 {
 	//printf("UIEngine::glutKeyUpFunction\n");
@@ -262,7 +283,7 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 
 	for (int w = 0; w < NUM_WIN; w++)
 		outImage[w] = new UChar4Image(imageSource->getDepthImageSize(),true, false);
-	outImage[0] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
+	//outImage[0] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
 	outImage[2] = new UChar4Image(imageSource->getRGBImageSize(),true, false);
 	
 

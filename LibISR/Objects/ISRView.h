@@ -48,7 +48,7 @@ namespace LibISR
 				this->rgb = new UChar4Image(rgb_size, true,useGPU);
 				this->rawDepth = new ShortImage(d_size, true, useGPU);
 				this->depth = new FloatImage(d_size, true, useGPU);
-				this->alignedRgb = new UChar4Image(rgb_size, true, useGPU);
+				this->alignedRgb = new UChar4Image(d_size, true, useGPU);
 			}
 
 			~ISRView()

@@ -47,6 +47,8 @@ namespace LibISRUtils
 		static void glutMouseButtonFunction(int button, int state, int x, int y);
 		static void glutMouseMoveFunction(int x, int y);
 
+		static void setMainloopState(int state);
+
 		const Vector2i & getWindowSize(void) const
 		{
 			return winSize;

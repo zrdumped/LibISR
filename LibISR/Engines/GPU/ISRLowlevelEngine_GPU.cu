@@ -11,7 +11,7 @@ using namespace LibISR::Objects;
 
 __global__ void subsampleImageRGBDImage_device(const Vector4f *imageData_in, Vector2i oldDims, Vector4f *imageData_out, Vector2i newDims);
 
-__global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, const short *depth_in, const Vector4u *rgb_in, const Vector2i rgbSize, const Vector2i depthSize, Matrix3f H, Vector3f T);
+__global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, Vector4u* rgb_out, const short *depth_in, const Vector4u *rgb_in, const Vector2i rgbSize, const Vector2i depthSize, Matrix3f H, Vector3f T);
 
 __global__ void preparePointCloudFromAlignedRGBDImage_device(Vector4f* ptcloud_out, Vector4f* inimg, float* histogram, Vector4f intrinsic, Vector4i boundingbox, Vector2i imgSize, int histBins);
 
@@ -36,7 +36,7 @@ void LibISR::Engine::ISRLowlevelEngine_GPU::subsampleImageRGBDImage(Float4Image 
 	subsampleImageRGBDImage_device << <gridSize, blockSize >> >(imageData_in, oldDims, imageData_out, newDims);
 }
 
-void LibISR::Engine::ISRLowlevelEngine_GPU::prepareAlignedRGBDData(Float4Image *outimg, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home)
+void LibISR::Engine::ISRLowlevelEngine_GPU::prepareAlignedRGBDData(Float4Image *outimg, UChar4Image * alignedRGB, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home)
 {
 	int w = raw_depth_in->noDims.width;
 	int h = raw_depth_in->noDims.height;
@@ -44,11 +44,12 @@ void LibISR::Engine::ISRLowlevelEngine_GPU::prepareAlignedRGBDData(Float4Image *
 	short* depth_in_ptr = raw_depth_in->GetData(MEMORYDEVICE_CUDA);
 	Vector4u* rgb_in_ptr = rgb_in->GetData(MEMORYDEVICE_CUDA);
 	Vector4f* rgbd_out_ptr = outimg->GetData(MEMORYDEVICE_CUDA);
+	Vector4u* rgb_out_ptr = alignedRGB->GetData(MEMORYDEVICE_CUDA);
 
 	dim3 blockSize(8, 8);
 	dim3 gridSize((int)ceil((float)w / (float)blockSize.x), (int)ceil((float)h / (float)blockSize.y));
 
-	prepareAlignedRGBDData_device << <gridSize, blockSize >> >(rgbd_out_ptr, depth_in_ptr, rgb_in_ptr, rgb_in->noDims, raw_depth_in->noDims, home->H, home->T);
+	prepareAlignedRGBDData_device << <gridSize, blockSize >> >(rgbd_out_ptr, rgb_out_ptr, depth_in_ptr, rgb_in_ptr, rgb_in->noDims, raw_depth_in->noDims, home->H, home->T);
 }
 
 void LibISR::Engine::ISRLowlevelEngine_GPU::preparePointCloudFromAlignedRGBDImage(Float4Image *ptcloud_out, Float4Image *inimg, Objects::ISRHistogram *histogram, const Vector4f &intrinsic, const Vector4i &boundingbox)
@@ -101,7 +102,7 @@ __global__ void subsampleImageRGBDImage_device(const Vector4f *imageData_in, Vec
 	filterSubsampleWithHoles(imageData_out, x, y, newDims, imageData_in, oldDims);
 }
 
-__global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, const short *depth_in, const Vector4u *rgb_in, const Vector2i rgbSize, const Vector2i depthSize, Matrix3f H, Vector3f T)
+__global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, Vector4u* rgb_out, const short *depth_in, const Vector4u *rgb_in, const Vector2i rgbSize, const Vector2i depthSize, Matrix3f H, Vector3f T)
 {
 	int x = threadIdx.x + blockIdx.x * blockDim.x, y = threadIdx.y + blockIdx.y * blockDim.y;
 	if (x > depthSize.x - 1 || y > depthSize.y - 1) return;
@@ -140,8 +141,8 @@ __global__ void prepareAlignedRGBDData_device(Vector4f* rgbd_out, const short *d
 		return;
 	}
 	rgbd_out[idx].w = z;
-	//rgb_out[idx].w = 255;
-	mapRGBDtoRGB(rgbd_out[idx], Vector3f(x*z, y*z, z), rgb_in, rgbSize, H, T);
+	rgb_out[idx].w = 255;
+	mapRGBDtoRGB(rgbd_out[idx], rgb_out[idx], Vector3f(x*z, y*z, z), rgb_in, rgbSize, H, T);
 }
 
 __global__ void preparePointCloudFromAlignedRGBDImage_device(Vector4f* ptcloud_out, Vector4f* inimg, float* histogram, Vector4f intrinsic, Vector4i boundingbox, Vector2i imgSize, int histBins)

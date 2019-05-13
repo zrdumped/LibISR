@@ -7,11 +7,14 @@
 #include"LibISR/UI/LibfreenectEngine.h"
 #include"LibISR/UI/UIEngine.h"
 
+#include"LibISR/Protobuf/Communication.h"
+
 #include"LibISR/Utils/IOUtil.h"
 #include"LibISR/Utils/NVTimer.h"
 
 using namespace LibISR::Engine;
 using namespace LibISR::Objects;
+using namespace LibISR::Protobuf;
 using namespace LibISRUtils;
 using namespace std;
 
@@ -29,6 +32,10 @@ int main(int argc, char** argv)
 
     //const char *sdfFile = argv[1];
 	//const char *calibFile = argv[2];
+
+	Communication *commu = new Communication();
+	commu->initServer();
+
     const char *sdfFile = "../Data/teacan.bin";
 	const char *calibFile = "../Data/Calib_latest.txt";
     

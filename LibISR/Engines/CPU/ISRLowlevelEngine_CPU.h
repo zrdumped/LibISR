@@ -14,7 +14,7 @@ namespace LibISR
 
 			void computepfImageFromHistogram(UChar4Image *rgb_in, Objects::ISRHistogram *histogram);
 
-			void prepareAlignedRGBDData(Float4Image *outimg, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home);
+			void prepareAlignedRGBDData(Float4Image *outimg, UChar4Image * alignedRGB, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home);
 
 			void subsampleImageRGBDImage(Float4Image *outimg, Float4Image *inimg);
 

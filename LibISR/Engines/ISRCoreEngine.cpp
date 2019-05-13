@@ -71,7 +71,8 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	// align colour image with depth image if need to
 	//printf("align colour image with depth image if need to\n");
 	//printf("data%d\n", myview->rawDepth->GetData());
-	lowLevelEngine->prepareAlignedRGBDData(myhierarchy->levels[0].rgbd, myview->rawDepth, myview->rgb, &myview->calib->homo_depth_to_color);
+	lowLevelEngine->prepareAlignedRGBDData(myhierarchy->levels[0].rgbd, myview->alignedRgb,  myview->rawDepth, myview->rgb, &myview->calib->homo_depth_to_color);
+	myview->alignedRgb->UpdateHostFromDevice();
 
 	static int i = 0;
 	if(i==0){
@@ -101,8 +102,8 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 
 	//sprintf(str, "depth-in-core.ppm");
 	//SaveImageToFile(myview->rawDepth, str);
-	//sprintf(str, "rgbd.ppm");
-	//SaveImageToFile(myhierarchy->levels[0].rgbd, str);
+	sprintf(str, "alignedrgb.ppm");
+	SaveImageToFile(myview->alignedRgb, str);
 
 	for (int idx = 0; idx < dataSize; idx++)
 	{
@@ -152,7 +153,7 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	//printf("myview->alignedRgb->SetFrom\n");
 	//lowLevelEngine->
 	//if (settings->useGPU){
-		myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
+		//myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		// if(myview->rgb->dataSize <= myview->alignedRgb->dataSize)
 		// 	myview->alignedRgb->SetFrom(myview->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		// else{
@@ -183,12 +184,13 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	//printf("raycast for rendering, not necessary if only track\n");
 	for (int i = 0; i < settings->noTrackingObj; i++)
 	{
-		tmprendering[i] = new ISRVisualisationState(myview->rgb->noDims, settings->useGPU);
+		tmprendering[i] = new ISRVisualisationState(myview->depth->noDims, settings->useGPU);
 		tmprendering[i]->outputImage->Clear(0);
 		//[MODIFIED]depth->rgb
-		visualizationEngine->updateMinmaxmImage(tmprendering[i]->minmaxImage, trackingState->getPose(i)->getH(), myview->calib->intrinsics_d.A, myview->rgb->noDims);
+		visualizationEngine->updateMinmaxmImage(tmprendering[i]->minmaxImage, trackingState->getPose(i)->getH(), myview->calib->intrinsics_d.A, myview->depth->noDims);
 		tmprendering[i]->minmaxImage->UpdateDeviceFromHost();
 		visualizationEngine->renderObject(tmprendering[i], trackingState->getPose(i)->getInvH(), shapeUnion->getShape(0), myview->calib->intrinsics_d.getParam());
+		//printf("%f %f %f\n", )
 	}
 
 	myrendering->outputImage->Clear(0);

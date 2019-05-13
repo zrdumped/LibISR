@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package protocol;
+
+message TracingResult{
+	repeated float result = 1;
+}
+
+message Command{
+	required int32 commandID = 1;
+	optional int32 tracedNum = 2;
+	repeated string tracedObjName = 3;
+}

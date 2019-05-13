@@ -27,7 +27,7 @@ void LibISR::Engine::ISRLowlevelEngine_CPU::subsampleImageRGBDImage(Float4Image 
 			filterSubsampleWithHoles(imageData_out, x, y, newDims, imageData_in, oldDims);
 }
 
-void LibISR::Engine::ISRLowlevelEngine_CPU::prepareAlignedRGBDData(Float4Image *outimg, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home)
+void LibISR::Engine::ISRLowlevelEngine_CPU::prepareAlignedRGBDData(Float4Image *outimg, UChar4Image * alignedRGB, ShortImage *raw_depth_in, UChar4Image *rgb_in, Objects::ISRExHomography *home)
 {
 	int w = raw_depth_in->noDims.width; //512
 	int h = raw_depth_in->noDims.height; //424

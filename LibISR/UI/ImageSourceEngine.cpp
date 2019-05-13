@@ -15,6 +15,7 @@ ImageSourceEngine::ImageSourceEngine(const char *calibFilename)
 	 //update homography manualy
 	 calib.homo_depth_to_color.H = calib.intrinsics_rgb.A * calib.trafo_rgb_to_depth.R * calib.intrinsics_d.invA;
 	 calib.homo_depth_to_color.T = calib.intrinsics_rgb.A * calib.trafo_rgb_to_depth.T ;
+	 calib.homo_depth_to_color.T.x += 50;
 	
 	// printf("H: %f %f %f\n", calib.intrinsics_rgb.A.m00, calib.intrinsics_rgb.A.m01, calib.intrinsics_rgb.A.m02);
 	// printf("H: %f %f %f\n", calib.intrinsics_rgb.A.m00, calib.intrinsics_rgb.A.m01, calib.intrinsics_rgb.A.m02);

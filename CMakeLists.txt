@@ -13,6 +13,8 @@ set(freenect2_LIBRARIES
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{HOME}/freenect2/lib/cmake/freenect2)
 
+set(Protobuf_LIBRARIES /usr/lib/x86_64-linux-gnu/libprotobuf.so.9)
+
 find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(CUDA REQUIRED)
@@ -56,7 +58,14 @@ ENDIF()
 add_subdirectory(ORUtils)
 add_subdirectory(LibISR)
 
-add_executable(demo demo.cpp)
-target_link_libraries(demo LibISR_ALL ${freenect2_LIBRARIES} ${OpenCV_LIBS})
+set(MyProtobuf
+	LibISR/Protobuf/result.pb.cc
+	LibISR/Protobuf/result.pb.h
+  LibISR/Protobuf/Communication.h
+  LibISR/Protobuf/Communication.cpp
+)
+
+add_executable(demo ${MyProtobuf} demo.cpp)
+target_link_libraries(demo LibISR_ALL  ${Protobuf_LIBRARIES} ${freenect2_LIBRARIES} ${OpenCV_LIBS})
 
 

@@ -112,12 +112,12 @@ void LibfreenectEngine::initialise(){
         return;
     }
     
-    //libfreenect2::Freenect2Device::Config config;
-    // config.EnableBilateralFilter = true;
-    // config.EnableEdgeAwareFilter = true;
-    // config.MinDepth = 0.3f;
-    // config.MaxDepth = 12.0f;
-    //data->device->setConfiguration(config);
+    libfreenect2::Freenect2Device::Config config;
+    config.EnableBilateralFilter = true;
+    config.EnableEdgeAwareFilter = true;
+    config.MinDepth = 0.3f;
+    config.MaxDepth = 12.0f;
+    data->device->setConfiguration(config);
 
     int types = libfreenect2::Frame::Color | libfreenect2::Frame::Depth;
     data->listener = new libfreenect2::SyncMultiFrameListener(types);

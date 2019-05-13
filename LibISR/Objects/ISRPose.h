@@ -109,7 +109,16 @@ namespace LibISR
 		public:
 
 			// set values
-			_CPU_AND_GPU_CODE_ void setFromH(const Matrix4f &M){ H = M; H.inv(invH); }
+			_CPU_AND_GPU_CODE_ void setFromH(const Matrix4f &M){ H = M; H.inv(invH); 
+			
+			printf("%f %f %f %f\n", M.m00, M.m01, M.m02, M.m03);
+			printf("%f %f %f %f\n", M.m10, M.m11, M.m12, M.m13);
+			printf("%f %f %f %f\n", M.m20, M.m21, M.m22, M.m23);
+			printf("%f %f %f %f\n\n", M.m30, M.m31, M.m32, M.m33);
+			
+			
+			
+			}
 			_CPU_AND_GPU_CODE_ void setFromInvH(const Matrix4f &M){ invH = M; invH.inv(H); }
 
 			_CPU_AND_GPU_CODE_ void setHFromRT(const Vector3f &r, const Vector3f &t){ H = getProjectionMatrixFromRT(r, t); H.inv(invH); }
