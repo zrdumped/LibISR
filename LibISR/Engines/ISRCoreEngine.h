@@ -8,6 +8,8 @@
 #include "../Objects/ISRShapeUnion.h"
 #include "../Objects/ISRTrackingState.h"
 
+#include "../Protobuf/Communication.h"
+
 #include "ISRLowlevelEngine.h"
 #include "shared/ISRLowlevelEngine_shared.h"
 #include "CPU/ISRLowlevelEngine_CPU.h"
@@ -41,6 +43,8 @@ namespace LibISR
 
 			float maxposediff;
 
+			Protobuf::Communication* commu;
+
 		public:
 
 			bool needStarTracker;
@@ -63,6 +67,8 @@ namespace LibISR
 				delete this->frame;
 				delete this->shapeUnion;
 			}
+
+			void setCommunication(Protobuf::Communication* c);
 		};
 	}
 }

@@ -56,7 +56,8 @@ int main(int argc, char** argv)
 
 	//printf("[demo.cpp]new ISRCoreEngine\n");
 	ISRCoreEngine *coreEngine = new ISRCoreEngine(&isrSettings, &imageSource->calib, imageSource->getDepthImageSize(), imageSource->getRGBImageSize());
-    
+    coreEngine->setCommunication(commu);
+
     coreEngine->shapeUnion->loadShapeFromFile(sdfFile, Vector3i(DT_VOL_SIZE, DT_VOL_SIZE, DT_VOL_SIZE), 0);
 	for (int i = 1; i < isrSettings.noTrackingObj; i++)
 		coreEngine->shapeUnion->shareSDFWithExistingShape(*coreEngine->shapeUnion->getShape(0), i);
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 	// run it!
 	///////////////////////////////////////////////////////////////////////////
 	//printf("UIEngine::Instance()->Initialise\n");
-	UIEngine::Instance()->Initialise(argc, argv, imageSource, coreEngine, "./");
+	UIEngine::Instance()->Initialise(argc, argv, imageSource, coreEngine, "./", commu);
 	//printf("UIEngine::Instance()->Run()\n;");
 	UIEngine::Instance()->Run();
 	UIEngine::Instance()->Shutdown();

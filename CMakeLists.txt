@@ -61,6 +61,7 @@ add_subdirectory(LibISR)
 set(MyProtobuf
 	LibISR/Protobuf/result.pb.cc
 	LibISR/Protobuf/result.pb.h
+  LibISR/Protobuf/Event.h
   LibISR/Protobuf/Communication.h
   LibISR/Protobuf/Communication.cpp
 )

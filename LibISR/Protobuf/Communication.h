@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "result.pb.h"
-#include "../UI/UIEngine.h"
+#include "Event.h"
 
 namespace LibISR
 {
@@ -27,11 +27,17 @@ namespace LibISR
 
             socklen_t client_addr_size;
 
+            protocol::TracingResult result;
+
         public:
+            Event<bool, int> input;
+            
             int initServer();
             void communicate();
 
             ~Communication();
+
+            void setResult(const float* res);
         };
     };
 };

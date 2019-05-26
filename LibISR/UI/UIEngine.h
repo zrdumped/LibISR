@@ -6,9 +6,11 @@
 #include "../Utils/NVTimer.h"
 #include "ImageSourceEngine.h"
 
+#include "../Protobuf/Communication.h"
+
 namespace LibISRUtils
 {
-	class UIEngine
+	class UIEngine : public SrcObject
 	{
 		static UIEngine* instance;
 
@@ -35,6 +37,11 @@ namespace LibISRUtils
 		Vector2i mouseLastClick;
 
 		int currentFrameNo; bool isRecording;
+
+		LibISR::Protobuf::Communication* commu;
+
+		bool processInputFromClient(int cmdID);
+
 	public:
 		static UIEngine* Instance(void) {
 			if (instance == NULL) instance = new UIEngine();
@@ -47,8 +54,6 @@ namespace LibISRUtils
 		static void glutMouseButtonFunction(int button, int state, int x, int y);
 		static void glutMouseMoveFunction(int x, int y);
 
-		static void setMainloopState(int state);
-
 		const Vector2i & getWindowSize(void) const
 		{
 			return winSize;
@@ -60,7 +65,7 @@ namespace LibISRUtils
 		bool needsRefresh;
 		float energy;
 
-		void Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, LibISR::Engine::ISRCoreEngine* mainEngine, const char *outFolder);
+		void Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, LibISR::Engine::ISRCoreEngine* mainEngine, const char *outFolder, LibISR::Protobuf::Communication* c);
 		void Shutdown();
 
 		void Run();

@@ -27,6 +27,7 @@
 
 using namespace LibISRUtils;
 using namespace LibISR::Engine;
+using namespace LibISR::Protobuf;
 
 UIEngine* UIEngine::instance;
 
@@ -178,27 +179,6 @@ void UIEngine::glutIdleFunction()
 	}
 }
 
-
-void UIEngine::setMainloopState(int state){
-	UIEngine *uiEngine = UIEngine::Instance();
-	switch (state){
-	case 1:
-		printf("processing input source ...\n");
-		uiEngine->mainLoopAction = UIEngine::PROCESS_VIDEO;
-		break;
-	case 2:
-		printf("re-initialize histogram ...\n");
-		uiEngine->mainLoopAction = UIEngine::REINIT_HIST;
-		break;
-	case 3:
-		printf("exiting ...\n");
-		uiEngine->mainLoopAction = UIEngine::EXIT;
-		break;
-	default:
-		break;
-	}
-}
-
 void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 {
 	//printf("UIEngine::glutKeyUpFunction\n");
@@ -242,8 +222,31 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	}
 }
 
-void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, ISRCoreEngine *mainEngine, const char *outFolder)
+bool UIEngine::processInputFromClient(int cmdID){
+	UIEngine *uiEngine = UIEngine::Instance();
+	switch(cmdID){
+	case 1:
+		printf("processing input source ...\n");
+		uiEngine->mainLoopAction = UIEngine::PROCESS_VIDEO;
+		return true;
+	case 2:
+		printf("re-initialize histogram ...\n");
+		uiEngine->mainLoopAction = UIEngine::REINIT_HIST;
+		return true;
+	case 3:
+		printf("exiting ...\n");
+		uiEngine->mainLoopAction = UIEngine::EXIT;
+		return true;
+	default:
+		return false;
+	}
+}
+
+void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, ISRCoreEngine *mainEngine, const char *outFolder, Communication* c)
 {
+	commu = c;
+	commu->input.associate(this, &UIEngine::processInputFromClient);
+
 	printf("[UIEngine::Initialise]%d x %d\n", imageSource->getDepthImageSize().x, imageSource->getDepthImageSize().y);
 	this->mainEngine = mainEngine;
 	this->imageSource = imageSource;

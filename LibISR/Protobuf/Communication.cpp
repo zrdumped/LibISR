@@ -2,7 +2,6 @@
 #include <thread>
 
 int LibISR::Protobuf::Communication::initServer(){
-
     server_socketfd = socket(PF_INET, SOCK_STREAM, 0);
     if(server_socketfd == -1){
         printf("server socket fd creation error\n");
@@ -28,7 +27,6 @@ int LibISR::Protobuf::Communication::initServer(){
 }
 
 LibISR::Protobuf::Communication::~Communication(){
-    sending = false;
     close(client_socketfd);
     close(server_socketfd);
 }
@@ -55,20 +53,20 @@ void LibISR::Protobuf::Communication::communicate(){
             break;
         case 1:
             if(formerCmd == 0){
-                LibISRUtils::UIEngine::setMainloopState(1);
+                input.sendEvent(1);
                 formerCmd = 1;
             }
             printf("start recording\n");
             break;
         case 2:
             if(formerCmd == 1){
-                LibISRUtils::UIEngine::setMainloopState(2);
+                input.sendEvent(2);
                 formerCmd = 2;
             }
             printf("start tracing\n");
             break;
         case 3:
-            LibISRUtils::UIEngine::setMainloopState(3);
+            input.sendEvent(3);
             break;
         default:
             break;
@@ -78,15 +76,33 @@ void LibISR::Protobuf::Communication::communicate(){
     }
 
     while(true){
-        int len;
-        protocol::TracingResult result;
-        result.add_result(0);
-        result.add_result(1);
-        std::string buf = "";
-        result.SerializeToString(&buf);
-        len = send(client_socketfd, buf.c_str(), buf.size(), 0);
-        char empty[1024];
-        len = recv(client_socketfd, empty, 1024, 0);
+        if(sending)
+        {
+            int len = 0;
+            std::string buf = "";
+            char empty[1024];
+            result.SerializeToString(&buf);
+            //printf("%d\n", client_socketfd);
+            // for(int i = 0; i < 80; i++){
+            //     printf("%d\n", buf[i]);
+            // }
+            len = send(client_socketfd, buf.c_str(), buf.size(), 0);
+            //printf("len %d\n", len);
+            len = recv(client_socketfd, empty, 1024, 0);
+            sending = false;
+        }
     }
+}
+
+void LibISR::Protobuf::Communication::setResult(const float* res){
+    if(sending) return;
+    result.clear_result();
+    for(int i = 0; i < 16; i++){
+        //printf("%f\n", res[i]);
+        result.add_result(res[i]);
+    }
+    sending = true;
+    //printf("sending\n");
+    //len = recv(client_socketfd, empty, 1024, 0);
 }
 

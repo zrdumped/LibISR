@@ -9,6 +9,7 @@
 
 using namespace LibISR::Engine;
 using namespace LibISR::Objects;
+using namespace LibISR::Protobuf;
 
 using namespace cv;
 
@@ -51,6 +52,10 @@ static inline float base(float val) {
 	else return 0.0;
 }
 
+void LibISR::Engine::ISRCoreEngine::setCommunication(Protobuf::Communication* c){
+	commu = c;
+}
+
 void LibISR::Engine::ISRCoreEngine::processFrame(void)
 {
 	StopWatchInterface *timer;
@@ -66,13 +71,23 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 	{
 		myview->rawDepth->UpdateDeviceFromHost();
 		myview->rgb->UpdateDeviceFromHost();
+		//myview->rgbd->UpdateDeviceFromHost();
+		//myview->alignedRgb->UpdateDeviceFromHost();
 	}
 
 	// align colour image with depth image if need to
 	//printf("align colour image with depth image if need to\n");
 	//printf("data%d\n", myview->rawDepth->GetData());
+	
 	lowLevelEngine->prepareAlignedRGBDData(myhierarchy->levels[0].rgbd, myview->alignedRgb,  myview->rawDepth, myview->rgb, &myview->calib->homo_depth_to_color);
+	//myview->rgbd->UpdateHostFromDevice();
 	myview->alignedRgb->UpdateHostFromDevice();
+	
+	//myhierarchy->levels[0].rgbd = myview->rgbd;
+	//printf("%d %d\n", myhierarchy->levels[0].rgbd->noDims.x, myhierarchy->levels[0].rgbd->noDims.y);
+	//memcpy(myview->alignedRgb->GetData(MEMORYDEVICE_CPU), myview->rgbd->GetData(MEMORYDEVICE_CPU), myview->rgbd->noDims.x * myview->rgbd->noDims.y * sizeof(Vector4f));
+	//memcpy(myhierarchy->levels[0].rgbd->GetData(MEMORYDEVICE_CPU), myview->rgbd->GetData(MEMORYDEVICE_CPU), myview->rgbd->noDims.x * myview->rgbd->noDims.y * sizeof(Vector4f));
+	
 
 	static int i = 0;
 	if(i==0){
@@ -179,6 +194,10 @@ void LibISR::Engine::ISRCoreEngine::processFrame(void)
 
 	ISRVisualisationState* myrendering = getRenderingState();
 	ISRVisualisationState** tmprendering = new ISRVisualisationState*[settings->noTrackingObj];
+
+	//send
+	const float* tmpResult = (float*)&trackingState->getPose(0)->getH();
+	commu->setResult(tmpResult);
 
 	// raycast for rendering, not necessary if only track
 	//printf("raycast for rendering, not necessary if only track\n");

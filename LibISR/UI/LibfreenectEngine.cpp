@@ -119,7 +119,7 @@ void LibfreenectEngine::initialise(){
     config.MaxDepth = 12.0f;
     data->device->setConfiguration(config);
 
-    int types = libfreenect2::Frame::Color | libfreenect2::Frame::Depth;
+    int types = libfreenect2::Frame::Color | libfreenect2::Frame::Depth | libfreenect2::Frame::Ir;
     data->listener = new libfreenect2::SyncMultiFrameListener(types);
     data->device->setColorFrameListener(data->listener);
     data->device->setIrAndDepthFrameListener(data->listener);
@@ -173,8 +173,8 @@ void LibfreenectEngine::getImages(LibISR::Objects::ISRView *out){
     data->colorFrame = data->frames[libfreenect2::Frame::Color];
     //ir = frames[libfreenect2::Frame::Ir];
     data->depthFrame = data->frames[libfreenect2::Frame::Depth];
-    //libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4), depth2rgb(1920, 1080 + 2, 4);
-    //data->registration->apply(data->colorFrame, data->depthFrame, &undistorted, &registered, true, &depth2rgb);
+    libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4);
+    data->registration->apply(data->colorFrame, data->depthFrame, &undistorted, &registered);
 
     
     //printf("[LibfreenectEngine::getImages]get rgb\n");
@@ -193,18 +193,31 @@ void LibfreenectEngine::getImages(LibISR::Objects::ISRView *out){
 
     for (int i = 0; i < out->rgb->noDims.x * out->rgb->noDims.y; i++)
 	{
-		Vector4u newPix; Vector4u oldPix = ((Vector4u*)data->colorFrame->data)[i];
+		Vector4u newPix;
+        Vector4u oldPix = ((Vector4u*)data->colorFrame->data)[i];
 		newPix.r = oldPix.b; newPix.g = oldPix.g; newPix.b = oldPix.r; newPix.a = oldPix.a;
-		rgb[i] = newPix;
-	}
+        rgb[i] = newPix;
+    }
 
     //printf("[LibfreenectEngine::getImages]get depth\n");
     short int *depth = out->rawDepth->GetData(MEMORYDEVICE_CPU);
+    //Vector4f *rgbd = out->rgbd->GetData(MEMORYDEVICE_CPU);
+    //Vector4u *alignedRGB = out->alignedRgb->GetData(MEMORYDEVICE_CPU);
     //printf("%d %d\n", sizeof(((float*)data->depthFrame->data)[0]), out->rawDepth->dataSize);
     for (int i = 0; i < out->rawDepth->noDims.x * out->rawDepth->noDims.y; i++)
 	{
 		float oldPix = ((float*)data->depthFrame->data)[i];
 		depth[i] = (short int)(oldPix);
+
+        // Vector4u newPix = ((Vector4u*)registered.data)[i];
+        // rgbd[i].x = newPix.x;
+        // rgbd[i].y = newPix.y;
+        // rgbd[i].z = newPix.z;
+        // rgbd[i].a = oldPix;
+        // alignedRGB[i].x = newPix.x;
+        // alignedRGB[i].y = newPix.y;
+        // alignedRGB[i].z = newPix.z;
+        // alignedRGB[i].a = 255;
 	}
     //memcpy(depth, data->depthFrame, out->rawDepth->dataSize * sizeof(float));
 
@@ -212,17 +225,21 @@ void LibfreenectEngine::getImages(LibISR::Objects::ISRView *out){
 
     data->listener->release(data->frames);
 
-    static int i = 0;
-	if(i == 0){
-        //Mat depth2rgbMat(1082, 1920, CV_32FC1, depth2rgb.data);
-        //imwrite("d2rgb.jpg", depth2rgbMat / 4500.0f);
+    // static int i = 0;
+	// if(i == 0){
+    //     Mat dp(424,512,CV_32FC1, data->depthFrame->data);
+    //     Mat depth2rgbMat(424, 512, CV_8UC4, undistorted.data);
+    //     Mat depth2rgbMat3(424, 512, CV_8UC3);
+    //     cvtColor(depth2rgbMat, depth2rgbMat3, CV_RGBA2RGB);
+    //     Mat rgb(1080, 1920, CV_8UC4, data->colorFrame->data);
+    //     imwrite("d2rgb.jpg", rgb);
 
-        out->RecordRaw();
-        // imwrite("input_srgb.jpg", srcMat);
-		// imwrite("input_drgb.jpg", dstMat);
-        printf("[LibfreenectEngine::getImages]recording\n");
-    }
-    i++;
+    //     out->RecordRaw();
+    //     // imwrite("input_srgb.jpg", srcMat);
+	// 	// imwrite("input_drgb.jpg", dstMat);
+    //     printf("[LibfreenectEngine::getImages]recording\n");
+    // }
+    // i++;
 	return;
 }
 

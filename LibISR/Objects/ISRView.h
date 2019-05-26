@@ -41,6 +41,8 @@ namespace LibISR
 			FloatImage *depth;
 			UChar4Image *alignedRgb;
 
+			Float4Image *rgbd;
+
 			ISRView(const ISRCalib &calib, Vector2i rgb_size, Vector2i d_size, bool  useGPU = false)
 			{
 				//remember to modify outImage after modfying this
@@ -49,6 +51,7 @@ namespace LibISR
 				this->rawDepth = new ShortImage(d_size, true, useGPU);
 				this->depth = new FloatImage(d_size, true, useGPU);
 				this->alignedRgb = new UChar4Image(d_size, true, useGPU);
+				this->rgbd = new Float4Image(d_size, true, useGPU);
 			}
 
 			~ISRView()
@@ -60,6 +63,8 @@ namespace LibISR
 
 				delete rawDepth;
 				delete alignedRgb;
+
+				delete rgbd;
 			}
 
 			ISRView(const ISRView&);
@@ -70,7 +75,7 @@ namespace LibISR
 				sprintf(str, "rgb.ppm");
 				SaveImageToFile(rgb, str);
 				sprintf(str, "raw-depth.ppm");
-				SaveImageToFile(rawDepth, str);
+				SaveImageToFile(alignedRgb, str);
 			}
 		};
 	}
